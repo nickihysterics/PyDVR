@@ -173,6 +173,8 @@ class MainApplication(QMainWindow):
         if current_settings:
             ip, login, password = current_settings
             self.start_video_stream(ip, login, password)  # автоматическое подключение
+        else:
+            ip, login, password = "", "", ""
 
         self.camera_settings_dialog.ip_edit.setText(ip)
         self.camera_settings_dialog.login_edit.setText(login)
