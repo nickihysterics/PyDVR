@@ -7,7 +7,7 @@ from database import Database
 import logging
 import os
 import datetime
-
+#Test
 Database.start_database()
 
 class CameraSettingsDialog(QMainWindow):
