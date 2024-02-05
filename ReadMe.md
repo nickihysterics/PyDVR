@@ -23,7 +23,7 @@ PyDVRforIPCam is a simple Python application designed for streaming video from a
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your_username/PyDVRforIPCam.git
+    git clone git clone https://github.com/nickihysterics/PyDVRforIPCam.git
     ```
 
 2. Install dependencies:
@@ -49,11 +49,11 @@ PyDVRforIPCam is a simple Python application designed for streaming video from a
 
 ## Contributing
 
-Contributions are welcome! Please follow the [contribution guidelines](CONTRIBUTING.md).
+Contributions are welcome! Pull request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## Acknowledgments
 
@@ -61,7 +61,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Troubleshooting
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/your_username/PyDVRforIPCam/issues).
+If you encounter any issues or have questions, please [open an issue](https://github.com/nickihysterics/PyDVRforIPCam/issues).
 
 ---
 
@@ -90,7 +90,7 @@ PyDVRforIPCam - простое приложение на Python для тран�
 1. Клонируйте репозиторий:
 
     ```bash
-    git clone https://github.com/your_username/PyDVRforIPCam.git
+    git clone https://github.com/nickihysterics/PyDVRforIPCam.git
     ```
 
 2. Установите зависимости:
@@ -116,11 +116,11 @@ PyDVRforIPCam - простое приложение на Python для тран�
 
 ## Содействие
 
-Содействие приветствуется! Пожалуйста, следуйте [руководству по внесению вклада](CONTRIBUTING.md).
+Содействие приветствуется! Pull request.
 
 ## Лицензия
 
-Этот проект распространяется под лицензией MIT - подробности см. в файле [LICENSE](LICENSE).
+Этот проект распространяется под лицензией MIT.
 
 ## Благодарности
 
@@ -128,4 +128,4 @@ PyDVRforIPCam - простое приложение на Python для тран�
 
 ## Устранение неполадок
 
-Если у вас возникнут проблемы или возникнут вопросы, пожалуйста, [откройте задачу](https://github.com/your_username/PyDVRforIPCam/issues).
+Если у вас возникнут проблемы или возникнут вопросы, пожалуйста, [откройте задачу](https://github.com/nickihysterics/PyDVRforIPCam/issues).
