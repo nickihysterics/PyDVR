@@ -4,14 +4,11 @@ class Database:
     @staticmethod
     def start_database():
         Database.initialize_database()
-
-        # Проверяем наличие строки в таблице recording_settings
         with sqlite3.connect('PyDVR.db') as conn:
             cursor = conn.cursor()
             cursor.execute('SELECT COUNT(*) FROM recording_settings')
             count = cursor.fetchone()[0]
 
-            # Если нет записей, вставляем стандартные настройки
             if count == 0:
                 conn.execute('''
                     INSERT INTO recording_settings (id, destination, record_length, auto_delete, auto_delete_days, enable_record)

@@ -20,7 +20,6 @@ class CameraSettingsDialog(QMainWindow):
         self.setWindowTitle("Настройки камеры")
         self.setGeometry(100, 100, 500, 300)
         self.setFixedSize(300, 200)
-        
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
