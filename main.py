@@ -29,7 +29,7 @@ class CameraSettingsDialog(QMainWindow):
         self.setup_camera_tab()
 
         self.central_widget.setLayout(self.main_layout)
-        icon = QIcon('settings_icon.png')
+        icon = QIcon('settings_icon.ico')
         self.setWindowIcon(icon)
 
     def setup_camera_tab(self):
@@ -91,7 +91,7 @@ class RecordingSettingsDialog(QMainWindow):
         self.central_widget.setLayout(self.main_layout)
 
         self.load_recording_settings()
-        icon = QIcon('settings_icon.png')
+        icon = QIcon('settings_icon.ico')
         self.setWindowIcon(icon)
 
     def setup_recording_tab(self):
@@ -184,7 +184,7 @@ class MainApplication(QMainWindow):
         except:
             pass
 
-        icon = QIcon('main_icon.png')
+        icon = QIcon('main_icon.ico')
         self.setWindowIcon(icon)
 
         self.setWindowTitle("PyDVRforIPCam")
