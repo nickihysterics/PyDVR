@@ -12,7 +12,7 @@ class Database:
             if count == 0:
                 conn.execute('''
                     INSERT INTO recording_settings (id, destination, record_length, auto_delete, auto_delete_days, enable_record)
-                    VALUES (1, 'C:\\RecVid', 60, "TRUE", 7, "TRUE")
+                    VALUES (1, 'C:\\RecVid', 60, FALSE, 7, FALSE)
                 ''')
 
     @staticmethod

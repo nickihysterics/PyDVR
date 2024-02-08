@@ -2,6 +2,9 @@ database.py
 PyDVR.db
 .vscode
 .gitignore
+setup.py
+dist
+build
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
