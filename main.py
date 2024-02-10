@@ -249,14 +249,14 @@ class MainApplication(QMainWindow):
             QMessageBox.critical(self, "Ошибка", f"Произошла ошибка: {str(e)}")
 
     def update_video_frame(self):
-        '''
-        Обновляет поток видео с камеры
-        '''
         if self.cap is not None and self.cap.isOpened():
-            ret, frame = self.cap.read()
-            if ret:
-                self.update_frame(frame)
-                self.record_video(frame)
+            try:
+                ret, frame = self.cap.read()
+                if ret:
+                    self.update_frame(frame)
+                    self.record_video(frame)
+            except Exception as e:
+                logging.error(f"Ошибка при обновлении видеокадра: {str(e)}")
 
     def update_frame(self, frame):
         '''
