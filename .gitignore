@@ -1,7 +1,6 @@
 database.py
 PyDVR.db
 .vscode
-.gitignore
 setup.py
 dist
 build
