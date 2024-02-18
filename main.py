@@ -10,16 +10,21 @@ import os
 import datetime
 
 class VideoThread(QThread):
+    '''Поток для обработки видеопотока и передачи кадров в основной поток'''
     frame_update_signal = pyqtSignal(object)
+    '''Сигнал для передачи обновлений кадра в основной поток'''
     reconnect_required_signal = pyqtSignal()
+    '''Сигнал для указания на необходимость реконнекта'''
 
     def __init__(self, parent=None):
+        '''Инициализация объекта VideoThread'''
         super().__init__(parent)
         self.cap = None
         self.running = False
         self.reconnecting = False
 
     def run(self):
+        '''Основной метод потока, обрабатывающий видеопоток'''
         try:
             while self.running:
                 ret, frame = self.cap.read()
@@ -31,6 +36,7 @@ class VideoThread(QThread):
             self.handle_error(f"Error in VideoThread: {str(e)}")
 
     def handle_error(self, error_text):
+        '''Обработка ошибок и инициация процесса реконнекта'''
         logging.error(error_text)
         if not self.reconnecting:
             self.reconnecting = True
@@ -38,6 +44,7 @@ class VideoThread(QThread):
             self.reconnect_required_signal.emit()
 
     def disconnect(self):
+        '''Остановка потока и освобождение ресурсов захвата видео'''
         self.running = False
         if self.cap is not None:
             self.cap.release()
@@ -45,6 +52,7 @@ class VideoThread(QThread):
         self.wait()
 
     def reconnect(self):
+        '''Процесс реконнекта'''
         if self.reconnecting:
             logging.warning("Reconnecting to the video stream...")
             self.disconnect()
@@ -57,22 +65,24 @@ class VideoThread(QThread):
             self.reconnecting = False
 
     def connect_to_camera(self, ip, login, password):
-            while True:
-                try:
-                    self.cap = cv2.VideoCapture(f"rtsp://{login}:{password}@{ip}:554/onvif1")
+        '''Подключение камеры, выполнение в цикле с повторными попытками при неудаче'''
+        while True:
+            try:
+                self.cap = cv2.VideoCapture(f"rtsp://{login}:{password}@{ip}:554/onvif1")
 
-                    if self.cap.isOpened():
-                        self.running = True
-                        self.current_settings = (ip, login, password)
-                        self.start()
-                    else:
-                        self.reconnect_required_signal.emit()
-                    break
-                except Exception as e:
-                    self.handle_error(f"Error connecting to the camera: {str(e)}")
-                    time.sleep(10)
+                if self.cap.isOpened():
+                    self.running = True
+                    self.current_settings = (ip, login, password)
+                    self.start()
+                else:
+                    self.reconnect_required_signal.emit()
+                break
+            except Exception as e:
+                self.handle_error(f"Error connecting to the camera: {str(e)}")
+                time.sleep(10)
 
     def start_video_stream(self, ip, login, password):
+        '''Запуск видеопотока'''
         try:
             self.cap = cv2.VideoCapture(f"rtsp://{login}:{password}@{ip}:554/onvif1")
 
@@ -86,13 +96,14 @@ class VideoThread(QThread):
             logging.error(f"Error starting video stream: {str(e)}")
 
     def stop_video_stream(self):
+        '''Остановка видеопотока'''
         self.running = False
         self.wait()
 
-
-
 class CameraSettingsDialog(QMainWindow):
+    '''Диалоговое окно для настроек камеры'''
     def __init__(self, video_thread, parent=None):
+        '''Инициализация диалогового окна'''
         super().__init__(parent)
         self.video_thread = video_thread
         
@@ -113,6 +124,7 @@ class CameraSettingsDialog(QMainWindow):
         self.setWindowIcon(icon)
 
     def setup_camera_tab(self):
+        '''Настройка внешнего вида вкладки с настройками камеры'''
         self.ip_label = QLabel("IP-адрес:")
         self.ip_edit = QLineEdit()
         self.login_label = QLabel("Логин:")
@@ -133,6 +145,7 @@ class CameraSettingsDialog(QMainWindow):
         self.main_layout.addWidget(self.connect_button)
 
     def connect_to_camera(self):
+        '''Метод для подключения камеры по указанным параметрам'''
         try:
             ip = self.ip_edit.text()
             login = self.login_edit.text()
@@ -148,9 +161,10 @@ class CameraSettingsDialog(QMainWindow):
             logging.error(f"Unexpected error connecting to the camera: {str(e)}")
             self.video_thread.reconnect()
 
-
 class RecordingSettingsDialog(QMainWindow):
+    '''Диалоговое окно для настроек записи видео'''
     def __init__(self, parent=None):
+        '''Инициализация диалогового окна'''
         super().__init__(parent)
 
         self.setWindowTitle("Настройки записи")
@@ -171,6 +185,7 @@ class RecordingSettingsDialog(QMainWindow):
         self.setWindowIcon(icon)
 
     def setup_recording_tab(self):
+        '''Настройка внешнего вида вкладки с настройками записи видео'''
         self.destination_label = QLabel("Место хранения:")
         self.destination_edit = QLineEdit()
         self.browse_button = QPushButton("Обзор", self)
@@ -204,12 +219,14 @@ class RecordingSettingsDialog(QMainWindow):
         self.main_layout.addWidget(self.apply_button)
 
     def browse_destination(self):
+        '''Метод для выбора папки для сохранения записей'''
         folder_path = QFileDialog.getExistingDirectory(self, "Выберите папку для сохранения")
         if folder_path:
             folder_path = folder_path.replace("/", "\\")  
             self.destination_edit.setText(folder_path)
 
     def apply_recording_settings(self):
+        '''Метод для применения настроек записи'''
         try:
             destination = self.destination_edit.text()
 
@@ -231,6 +248,7 @@ class RecordingSettingsDialog(QMainWindow):
             QMessageBox.critical(self, "Ошибка", f"Произошла ошибка: {str(e)}")
 
     def load_recording_settings(self):
+        '''Метод для загрузки текущих настроек записи'''
         try:
             destination, record_length, auto_delete, auto_delete_days, enable_record = Database.get_recording_settings()
 
@@ -242,9 +260,11 @@ class RecordingSettingsDialog(QMainWindow):
         except Exception as e:
             logging.error(f"Ошибка загрузки настроек записи: {str(e)}")
 
-
 class MainApplication(QMainWindow):
+    '''Главное приложение'''
+
     def __init__(self):
+        '''Инициализация главного окна приложения'''
         super().__init__()
 
         try:
@@ -296,14 +316,17 @@ class MainApplication(QMainWindow):
         self.recording_settings = Database.get_recording_settings()
 
     def show_camera_settings_dialog(self):
+        '''Отображение диалога настроек камеры'''
         self.camera_settings_dialog.show()
         self.recording_settings_dialog.hide()
 
     def show_recording_settings_dialog(self):
+        '''Отображение диалога настроек записи'''
         self.recording_settings_dialog.show()
         self.camera_settings_dialog.hide()
 
     def start_video_stream(self, ip, login, password):
+        '''Запуск видеопотока'''
         try:
             self.video_thread.start_video_stream(ip, login, password)
         except Exception as e:
@@ -311,11 +334,13 @@ class MainApplication(QMainWindow):
             self.handle_video_thread_error(str(e))  # Обработка ошибки
 
     def update_video_frame(self, frame):
+        '''Обновление кадра на виджете'''
         if frame is not None:
             self.update_frame(frame)
             self.record_video(frame)
 
     def update_frame(self, frame):
+        '''Обновление виджета с кадром'''
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         h, w, ch = frame.shape
@@ -336,6 +361,7 @@ class MainApplication(QMainWindow):
         self.video_widget.setPixmap(pixmap)
 
     def record_video(self, frame):
+        '''Запись видео'''
         try:
             if True:
                 destination, record_length, auto_delete, auto_delete_days, enable_record = Database.get_recording_settings()
@@ -364,6 +390,7 @@ class MainApplication(QMainWindow):
             logging.error(f"Ошибка записи видео: {str(e)}")
 
     def delete_old_videos(self, folder, days):
+        '''Удаление старых видеофайлов'''
         try:
             current_time = datetime.datetime.now()
 
@@ -378,13 +405,16 @@ class MainApplication(QMainWindow):
             logging.error(f"Ошибка удаления старых видео: {str(e)}")
 
     def handle_video_thread_error(self, error_text):
+        '''Обработка ошибки видеопотока'''
         logging.error(f"Error in VideoThread: {error_text}")
         self.video_thread.reconnect()
 
     def handle_reconnect_required(self):
+        '''Обработка запроса на реконнект видеопотока'''
         self.video_thread.reconnect()
 
 if __name__ == '__main__':
+    '''Запуск приложения'''
     app = QApplication(sys.argv)
     main_app = MainApplication()
     main_app.show()

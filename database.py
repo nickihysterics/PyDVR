@@ -3,6 +3,9 @@ import sqlite3
 class Database:
     @staticmethod
     def start_database():
+        """
+        Инициализирует базу данных и вставляет значения настроек записи по умолчанию, если записей нет.
+        """
         Database.initialize_database()
         with sqlite3.connect('PyDVR.db') as conn:
             cursor = conn.cursor()
@@ -17,6 +20,9 @@ class Database:
 
     @staticmethod
     def initialize_database():
+        """
+        Инициализирует базу данных, создавая таблицы, если они не существуют.
+        """
         with sqlite3.connect('PyDVR.db') as conn:
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS camera_settings (
@@ -39,6 +45,9 @@ class Database:
 
     @staticmethod
     def insert_camera_settings(ip, login, password):
+        """
+        Вставляет или заменяет настройки камеры в базе данных.
+        """
         with sqlite3.connect('PyDVR.db') as conn:
             cursor = conn.cursor()
             cursor.execute('''
@@ -49,6 +58,9 @@ class Database:
 
     @staticmethod
     def get_camera_settings():
+        """
+        Получает последние настройки камеры из базы данных.
+        """
         with sqlite3.connect('PyDVR.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT ip, login, password FROM camera_settings ORDER BY id DESC LIMIT 1")
@@ -57,6 +69,9 @@ class Database:
 
     @staticmethod
     def insert_recording_settings(destination, record_length, auto_delete, auto_delete_days, enable_record):
+        """
+        Вставляет или заменяет настройки записи в базе данных.
+        """
         with sqlite3.connect('PyDVR.db') as conn:
             cursor = conn.cursor()
             cursor.execute('''
@@ -67,6 +82,9 @@ class Database:
 
     @staticmethod
     def get_recording_settings():
+        """
+        Получает последние настройки записи из базы данных.
+        """
         with sqlite3.connect('PyDVR.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT destination, record_length, auto_delete, auto_delete_days, enable_record FROM recording_settings ORDER BY id DESC LIMIT 1")
