@@ -9,6 +9,8 @@ import logging
 import os
 import datetime
 
+Database.start_database()
+
 class VideoThread(QThread):
     '''Поток для обработки видеопотока и передачи кадров в основной поток'''
     frame_update_signal = pyqtSignal(object)
