@@ -1,6 +1,6 @@
-# PyDVRforIPCam
+# PyDVR
 
-PyDVRforIPCam is a simple Python application designed for streaming video from an IP camera and recording it locally. It utilizes the PyQt5 library for the graphical user interface and OpenCV for video processing.
+PyDVR is a simple Python application designed for streaming video from an IP camera and recording it locally. It utilizes the PyQt5 library for the graphical user interface and OpenCV for video processing.
 
 ## Features
 
@@ -23,7 +23,7 @@ PyDVRforIPCam is a simple Python application designed for streaming video from a
 1. Clone the repository:
 
     ```bash
-    git clone git clone https://github.com/nickihysterics/PyDVRforIPCam.git
+    git clone git clone https://github.com/nickihysterics/PyDVR.git
     ```
 
 2. Install dependencies:
@@ -35,7 +35,7 @@ PyDVRforIPCam is a simple Python application designed for streaming video from a
 3. Run the application:
 
     ```bash
-    cd PyDVRforIPCam
+    cd PyDVR
     python main.py
     ```
 
@@ -61,13 +61,13 @@ This project is licensed under the MIT License.
 
 ## Troubleshooting
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/nickihysterics/PyDVRforIPCam/issues).
+If you encounter any issues or have questions, please [open an issue](https://github.com/nickihysterics/PyDVR/issues).
 
 ---
 
-# PyDVRforIPCam
+# PyDVR
 
-PyDVRforIPCam - простое приложение на Python для трансляции видео с IP-камеры и записи его локально. Для создания графического интерфейса используется библиотека PyQt5, а для обработки видео - OpenCV.
+PyDVR - простое приложение на Python для трансляции видео с IP-камеры и записи его локально. Для создания графического интерфейса используется библиотека PyQt5, а для обработки видео - OpenCV.
 
 ## Возможности
 
@@ -90,7 +90,7 @@ PyDVRforIPCam - простое приложение на Python для тран�
 1. Клонируйте репозиторий:
 
     ```bash
-    git clone https://github.com/nickihysterics/PyDVRforIPCam.git
+    git clone https://github.com/nickihysterics/PyDVR.git
     ```
 
 2. Установите зависимости:
@@ -102,7 +102,7 @@ PyDVRforIPCam - простое приложение на Python для тран�
 3. Запустите приложение:
 
     ```bash
-    cd PyDVRforIPCam
+    cd PyDVR
     python main.py
     ```
 
@@ -128,4 +128,4 @@ PyDVRforIPCam - простое приложение на Python для тран�
 
 ## Устранение неполадок
 
-Если у вас возникнут проблемы или возникнут вопросы, пожалуйста, [откройте задачу](https://github.com/nickihysterics/PyDVRforIPCam/issues).
+Если у вас возникнут проблемы или возникнут вопросы, пожалуйста, [откройте задачу](https://github.com/nickihysterics/PyDVR/issues).
