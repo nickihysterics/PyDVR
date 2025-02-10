@@ -7,12 +7,8 @@ from PyQt5.QtCore import QThread, pyqtSignal  # QThread для работы в �
 from database import Database
 
 class VideoThread(QThread):
-    """
-    Класс для работы с видеопотоком в отдельном потоке.
-    Обрабатывает видеозапись с камеры, сохраняет видео в файл и отправляет сигналы обновления кадров.
-    """
-    frame_update_signal = pyqtSignal(object)  # Сигнал для передачи нового кадра (тип object — любой объект)
-    reconnect_required_signal = pyqtSignal()  # Сигнал для уведомления о необходимости переподключения камеры
+    frame_update_signal = pyqtSignal(object)
+    reconnect_required_signal = pyqtSignal()
 
     def __init__(self, parent=None):
         """ Инициализация видеопотока с настройками из базы данных PyDVR.db. """
@@ -21,93 +17,83 @@ class VideoThread(QThread):
         self.running = False
         self.writer = None
 
-        # Получаем настройки записи из базы данных
-        settings = Database.get_recording_settings()
-        if settings:
-            self.video_file_path = settings[0]  # Путь для сохранения записанного видео
-            self.record_length = settings[1]    # Длительность записи в минутах
-            self.auto_delete = settings[2]      # Флаг автоматического удаления
-            self.auto_delete_days = settings[3] # Количество дней для автоудаления
-            self.enable_record = settings[4]    # Флаг включения записи
+        # Получаем настройки записи
+        recording_settings = Database.get_recording_settings()
+        if recording_settings:
+            self.video_file_path = recording_settings[0]
+            self.record_length = recording_settings[1]
+            self.auto_delete = recording_settings[2]
+            self.auto_delete_days = recording_settings[3]
+            self.enable_record = recording_settings[4]
+
+        # Получаем настройки камеры (camera_index и mirror)
+        camera_settings = Database.get_camera_settings()
+        if camera_settings:
+            self.camera_index = camera_settings[0]
+            self.mirror_video = camera_settings[1]  # Флаг зеркалирования видео
 
     def run(self):
-        """
-        Основной метод потока. Выполняется при запуске потока.
-        Считывает кадры из видеопотока и сохраняет их в файл.
-        """
+        """ Основной метод потока для считывания кадров и записи видео. """
         try:
-            self.start_time = time.time()  # Время начала записи
-            while self.running:  # Основной цикл записи
-                ret, frame = self.cap.read()  # Считываем кадр с камеры
+            self.start_time = time.time()
+            while self.running:
+                ret, frame = self.cap.read()
                 if ret:
-                    self.frame_update_signal.emit(frame)  # Отправляем кадр через сигнал для обновления интерфейса
-                    if self.writer:  # Если запись активна, сохраняем кадр в файл
-                        self.writer.write(frame)
-                    
-                    # Проверяем, истекло ли время записи
-                    if time.time() - self.start_time >= self.record_length:
-                        self.stop_video_stream()  # Останавливаем текущую запись
-                        self.start_video_stream()  # Перезапускаем запись с новым файлом
+                    if self.mirror_video:  # Проверяем флаг зеркалирования
+                        frame = cv2.flip(frame, 1)  # Зеркалируем кадр по горизонтали
+
+                    self.frame_update_signal.emit(frame)  # Отправляем кадр для обновления интерфейса
+
+                    if self.writer:
+                        self.writer.write(frame)  # Сохраняем кадр в файл
+
+                    if time.time() - self.start_time >= self.record_length * 60:  # Проверка времени записи
+                        self.stop_video_stream()
+                        self.start_video_stream()
                 else:
-                    self.handle_error("Failed to read frame")  # Обработка ошибки при чтении кадра
+                    self.handle_error("Failed to read frame")
         except Exception as e:
-            self.handle_error(f"Error in VideoThread: {str(e)}")  # Логируем любые исключения
+            self.handle_error(f"Error in VideoThread: {str(e)}")
 
     def start_video_stream(self):
-        """
-        Запуск видеопотока и настройка параметров записи.
-        Создает новый файл для записи и запускает поток.
-        """
+        """ Запуск видеопотока и настройка параметров записи. """
         try:
-            self.cap = cv2.VideoCapture(0)  # Подключаемся к камере (0 — первая доступная камера)
-            if self.cap.isOpened():  # Проверяем, успешно ли подключились
-                frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))  # Ширина кадра
-                frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))  # Высота кадра
-                fourcc = cv2.VideoWriter_fourcc(*'XVID')  # Кодек для записи видео (XVID)
-                
-                # Формируем уникальное имя файла на основе текущего времени
+            self.cap = cv2.VideoCapture(self.camera_index)  # Используем camera_index из настроек камеры
+            if self.cap.isOpened():
+                frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                fourcc = cv2.VideoWriter_fourcc(*'XVID')
+
                 current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                # self.video_file_path = f'{self.video_file_path}\\{current_time}.avi'
-                
-                # Создаем объект VideoWriter для записи видео
+                self.video_file_path = f'{self.video_file_path}\\{current_time}.avi'
+
                 self.writer = cv2.VideoWriter(self.video_file_path, fourcc, 20.0, (frame_width, frame_height))
-                self.running = True  # Устанавливаем флаг, что поток работает
-                self.start_time = time.time()  # Обновляем время начала записи
-                self.start()  # Запускаем метод run() в новом потоке
+                self.running = True
+                self.start_time = time.time()
+                self.start()
             else:
-                self.reconnect_required_signal.emit()  # Если не удалось подключиться, отправляем сигнал для реконнекта
+                self.reconnect_required_signal.emit()
         except Exception as e:
-            logging.error(f"Error starting video stream: {str(e)}")  # Логируем ошибки
+            logging.error(f"Error starting video stream: {str(e)}")
 
     def stop_video_stream(self):
-        """
-        Останавливает видеопоток и освобождает ресурсы.
-        Закрывает файл записи и завершает поток.
-        """
-        self.running = False  # Останавливаем цикл в методе run()
+        """ Останавливает видеопоток и освобождает ресурсы. """
+        self.running = False
         if self.writer:
-            self.writer.release()  # Закрываем файл записи
+            self.writer.release()
         if self.cap is not None:
-            self.cap.release()  # Освобождаем камеру
-        self.wait()  # Ожидаем завершения потока
+            self.cap.release()
+        self.wait()
 
     def handle_error(self, error_text):
-        """
-        Обработка ошибок и логирование.
-        Отправляет сигнал о необходимости переподключения камеры.
-        
-        :param error_text: Текст ошибки для записи в лог
-        """
-        logging.error(error_text)  # Записываем ошибку в лог
-        self.reconnect_required_signal.emit()  # Отправляем сигнал для реконнекта
+        """ Обработка ошибок и логирование. """
+        logging.error(error_text)
+        self.reconnect_required_signal.emit()
 
     def reconnect(self):
-        """
-        Переподключение камеры после ошибки.
-        Освобождает текущий видеопоток и повторно подключается.
-        """
+        """ Переподключение камеры после ошибки. """
         if self.cap is not None:
-            self.cap.release()  # Освобождаем текущий объект захвата
-        self.cap = cv2.VideoCapture(0)  # Повторное подключение к камере
-        self.running = True  # Устанавливаем флаг, что поток снова работает
-        self.start()  # Перезапускаем метод run() в новом потоке
+            self.cap.release()
+        self.cap = cv2.VideoCapture(self.camera_index)  # Повторное подключение с использованием camera_index
+        self.running = True
+        self.start()

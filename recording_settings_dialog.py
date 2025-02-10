@@ -73,8 +73,12 @@ class RecordingSettingsDialog(QMainWindow):
             destination = self.destination_edit.text()
 
             if not os.path.exists(destination):
-                QMessageBox.warning(self, "Ошибка", "Путь не существует или программа не имеет доступа.")
-                return
+                try:
+                    os.makedirs(destination)
+                    QMessageBox.information(self, "Информация", f"Папка для записи создана:\n{destination}")
+                except Exception as e:
+                    QMessageBox.critical(self, "Ошибка", f"Не удалось создать папку для записи:\n{destination}\n{str(e)}")
+                    return  # Не сохраняем настройки, если создать папку не удалось
 
             record_length = self.record_length_spinbox.value() * 60  # Переводим в секунды
             auto_delete = self.auto_delete_checkbox.isChecked()
