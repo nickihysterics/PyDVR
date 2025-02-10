@@ -115,3 +115,4 @@ class Database:
             ''')
             result = cursor.fetchone()
             return result
+Database.initialize_database()

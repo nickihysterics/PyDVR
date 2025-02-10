@@ -88,7 +88,9 @@ class CameraSettingsDialog(QMainWindow):
                 self.video_thread.stop_video_stream()
 
             # Запуск видеопотока с выбранным индексом камеры и флагом отзеркаливания
-            self.video_thread.start_video_stream(selected_index, mirror=mirror_enabled)
+            self.video_thread.camera_index = selected_index
+            self.video_thread.mirror_video = mirror_enabled
+            self.video_thread.start_video_stream()
             self.save_settings(selected_index, mirror_enabled)  # Сохранить настройки в БД
             logging.info(f"Подключение к камере {selected_index} успешно.")
             self.camera_connected_signal.emit()
